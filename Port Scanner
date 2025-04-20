@@ -1,0 +1,44 @@
+import socket
+
+def scan_ports(host, ports):
+    """Scans specified ports on a given host and returns open/closed status."""
+    open_ports = []
+    closed_ports = []
+
+    for port in ports:
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.settimeout(1)  # Set a timeout to prevent indefinite blocking
+                result = s.connect_ex((host, port))
+
+                if result == 0:
+                    open_ports.append(port)
+                else:
+                    closed_ports.append(port)
+        except Exception as e:
+            print(f"Error scanning port {port}: {e}")
+            closed_ports.append(port)  # Treat errors as closed
+
+    return open_ports, closed_ports
+
+if __name__ == "__main__":
+    target_host = "127.0.0.1"  # Localhost
+    ports_to_scan = [80, 443, 22, 21]
+
+    open_ports, closed_ports = scan_ports(target_host, ports_to_scan)
+
+    print(f"Scanning {target_host}...")
+
+    if open_ports:
+        print("\nOpen Ports:")
+        for port in open_ports:
+            print(f"Port {port} is open")
+    else:
+        print("\nNo open ports found.")
+
+    if closed_ports:
+        print("\nClosed Ports:")
+        for port in closed_ports:
+            print(f"Port {port} is closed")
+    else:
+        print("\nAll ports are open or there were no errors.")
